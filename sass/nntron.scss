@@ -1,0 +1,35 @@
+@import "compass/utilities";
+@import "compass/reset";
+
+@import "base";
+@import "shame";
+@import "elements";
+
+.full-body {
+  @extend %one_hundread;
+}
+
+.title {
+  margin: {
+    top: 10px;
+    left: 49%;
+  }
+}
+
+//FIXME: Make the settings ocuppy all her space
+.settings {
+  height: 100%;
+}
+
+.game {
+  @extend %one_hundread;
+  margin: {
+    top: 40px;
+  }
+}
+
+.nntron {
+  width: 480px;
+  height: 512px;
+  margin: 20px 20px 0px 20px;
+}
