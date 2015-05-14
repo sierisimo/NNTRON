@@ -41,7 +41,55 @@
   }
   glob.resetScenario = resetScenario;
 
+  function updateGame(modifier) {
+    var player = glob.player,
+      npc = glob.npc;
+    if (37 in glob.keys) {
+      player.x -= player.speed * modifier;
+    }
+
+    if (38 in glob.keys) {
+      player.y -= player.speed * modifier;
+    }
+
+    if (39 in glob.keys) {
+      player.x += player.speed * modifier;
+    }
+
+    if (40 in glob.keys) {
+      player.y += player.speed * modifier;
+    }
+
+    // Are they touching?
+    //FIXME: This part checks if they are in the same place
+    if (player.x <= (npc.x + 32) && npc.x <= (player.x + 32) && player.y <= (npc.y + 32) && npc.y <= (player.y + 32)) {
+      ++glob.points[0];
+
+      glob.resetScenario();
+    }
+  }
+  glob.updateGame = updateGame;
+
   glob.player = player;
   glob.npc = npc;
   glob.points = points;
+
+  function mainLoop() {
+    var now = Date.now(),
+      delta = now - glob.then;
+
+      glob.then = now;
+
+    glob.updateGame(delta / 1000);
+    glob.render();
+
+    //Request the update ASAP
+    requestAnimationFrame(mainLoop);
+  }
+  glob.mainLoop = mainLoop;
+  glob.then = Date.now();
+
+  //FIXME: Change this for a button call or something
+  glob.resetScenario();
+  glob.mainLoop();
 })();
