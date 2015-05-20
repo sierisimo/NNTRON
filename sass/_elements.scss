@@ -1,10 +1,20 @@
 //Specific elements style, not classes.
+body {
+  background: {
+    color: black;
+  }
+}
+canvas {
+  background: {
+    color: white;
+  }
+}
 header {
   height: 40px;
   width: 100%;
   position: fixed;
   margin-top: -40px;
-  background:{
+  background: {
     color: yellow;
   }
 }

@@ -1,12 +1,78 @@
-(function() {
-  var canvas = glob.canvas,
-    player = {
+var glob = {
+    canvas: (function(doc) {
+      var can = doc.getElementById('nntron-canvas');
+      can.setAttribute('width', 600);
+      can.setAttribute('height', 480);
+      return can;
+    })(document)
+  },
+  w = window,
+  requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+
+(function(canvas) {
+  var bgReady = playerImgReady = npcImgReady = false,
+    bgImage = new Image(),
+    playerImg = new Image(),
+    npcImg = new Image(),
+    ctx = canvas.getContext("2d");
+
+  bgImage.onload = function() {
+    bgReady = true;
+  };
+  bgImage.src = "img/cyber.jpg";
+
+  playerImg.onload = function() {
+    playerImgReady = true;
+  };
+  playerImg.src = "img/player.png";
+
+  npcImg.onload = function() {
+    npcImgReady = true;
+  };
+  npcImg.src = "img/npc.png";
+
+  function render() {
+    var ctx = ctx || glob.ctx;
+    
+    if (bgReady) {
+      ctx.drawImage(bgImage, 0, 0);
+    }
+    if (playerImgReady) {
+      ctx.drawImage(playerImg, glob.player.x, glob.player.y);
+    }
+    if (npcImgReady) {
+      ctx.drawImage(npcImg, glob.npc.x, glob.npc.y);
+    }
+
+    //Score
+    ctx.fillStyle = "rgb(250, 250, 250)";
+    ctx.font = "24px Helvetica";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText("Points: " + glob.points[0] + " - " + glob.points[1], 32, 32);
+  }
+  glob.render = render;
+
+  var player = {
       speed: 256,
+      movements: {
+        up: true,
+        down: true,
+        left: false,
+        right: false
+      },
       x: 0,
       y: 0
     },
     //TODO: Make a better npc for letting the game beign really intelligent
     npc = {
+      speed: 256,
+      movements: {
+        up: true,
+        down: true,
+        left: false,
+        right: false
+      },
       level: 0,
       x: 0,
       y: 0
@@ -15,13 +81,6 @@
     points = [0, 0];
 
   glob.keys = {};
-  //TODO: Delete this two and check for keypress
-  /*
-    addEventListener('keypress', function(e){
-      //DO STUFF
-      glob.keys[e.keyCode]
-    }, false);
-  */
 
   addEventListener('keydown', function(e) {
     glob.keys[e.keyCode] = true;
@@ -78,7 +137,7 @@
     var now = Date.now(),
       delta = now - glob.then;
 
-      glob.then = now;
+    glob.then = now;
 
     glob.updateGame(delta / 1000);
     glob.render();
@@ -86,10 +145,11 @@
     //Request the update ASAP
     requestAnimationFrame(mainLoop);
   }
+  glob.ctx = ctx;
   glob.mainLoop = mainLoop;
   glob.then = Date.now();
 
   //FIXME: Change this for a button call or something
   glob.resetScenario();
   glob.mainLoop();
-})();
+})(glob.canvas);
