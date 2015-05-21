@@ -1,8 +1,11 @@
-var glob = {
+var __width = 600,
+  __height = 480,
+  __speed = 128,
+  glob = {
     canvas: (function(doc) {
       var can = doc.getElementById('nntron-canvas');
-      can.setAttribute('width', 600);
-      can.setAttribute('height', 480);
+      can.setAttribute('width', __width);
+      can.setAttribute('height', __height);
       return can;
     })(document)
   },
@@ -33,7 +36,7 @@ var glob = {
 
   function render() {
     var ctx = ctx || glob.ctx;
-    
+
     if (bgReady) {
       ctx.drawImage(bgImage, 0, 0);
     }
@@ -43,18 +46,11 @@ var glob = {
     if (npcImgReady) {
       ctx.drawImage(npcImg, glob.npc.x, glob.npc.y);
     }
-
-    //Score
-    ctx.fillStyle = "rgb(250, 250, 250)";
-    ctx.font = "24px Helvetica";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillText("Points: " + glob.points[0] + " - " + glob.points[1], 32, 32);
   }
   glob.render = render;
 
   var player = {
-      speed: 256,
+      speed: __speed,
       movements: {
         up: true,
         down: true,
@@ -64,9 +60,8 @@ var glob = {
       x: 0,
       y: 0
     },
-    //TODO: Make a better npc for letting the game beign really intelligent
     npc = {
-      speed: 256,
+      speed: __speed,
       movements: {
         up: true,
         down: true,
@@ -77,8 +72,7 @@ var glob = {
       x: 0,
       y: 0
     },
-    //Points in the form: player, npc
-    points = [0, 0];
+    points = [0, 0]; //Points in the form: player, npc
 
   glob.keys = {};
 
@@ -91,18 +85,17 @@ var glob = {
   }, false);
 
   function resetScenario() {
-    //TODO: change coordenates for put the motocycles on a specific point
-    this.player.x = canvas.width / 2;
-    this.player.y = canvas.height / 2;
+    this.player.x = __width / 4;
+    this.player.y = __height / 2;
 
-    this.npc.x = 32 + (Math.random() * (canvas.width - 64));
-    this.npc.y = 32 + (Math.random() * (canvas.height - 64));
+    this.npc.x = (__width / 4) * 3;
+    this.npc.y = __height / 2;
   }
   glob.resetScenario = resetScenario;
 
   function updateGame(modifier) {
     var player = glob.player,
-      npc = glob.npc;
+      npc = glob.npc, needReset = false;
     if (37 in glob.keys) {
       player.x -= player.speed * modifier;
     }
@@ -119,11 +112,17 @@ var glob = {
       player.y += player.speed * modifier;
     }
 
-    // Are they touching?
-    //FIXME: This part checks if they are in the same place
-    if (player.x <= (npc.x + 32) && npc.x <= (player.x + 32) && player.y <= (npc.y + 32) && npc.y <= (player.y + 32)) {
-      ++glob.points[0];
+    //You just touched the limits, you lose
+    if ((player.x + 5) >= __width || player.x <= 0 || player.y <= 0 || (player.y + 5) >= __height){
+      glob.points[1]++;
+      needReset = true;
+    }
+    if ((npc.x + 5) >= __width || npc.x <= 0 || npc.y <= 0 || (npc.y + 5) >= __height){
+      glob.points[0]++;
+      needReset = true;
+    }
 
+    if(needReset){
       glob.resetScenario();
     }
   }
