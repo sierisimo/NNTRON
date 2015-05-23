@@ -41,7 +41,8 @@ var __width = 600,
       ctx.drawImage(bgImage, 0, 0);
     }
     if (playerImgReady) {
-      ctx.drawImage(playerImg, glob.player.x, glob.player.y);
+      //glob.player.x += 1;
+      ctx.drawImage(playerImg, glob.player.x , glob.player.y);
     }
     if (npcImgReady) {
       ctx.drawImage(npcImg, glob.npc.x, glob.npc.y);
@@ -57,6 +58,7 @@ var __width = 600,
         left: false,
         right: false
       },
+      points: [],
       x: 0,
       y: 0
     },
@@ -68,6 +70,7 @@ var __width = 600,
         left: false,
         right: false
       },
+      points: [],
       level: 0,
       x: 0,
       y: 0
@@ -87,9 +90,23 @@ var __width = 600,
   function resetScenario() {
     this.player.x = __width / 4;
     this.player.y = __height / 2;
+    this.player.points = [];
+    this.player.movements = {
+      up: true,
+      down: true,
+      left: false,
+      right: false
+    };
 
     this.npc.x = (__width / 4) * 3;
     this.npc.y = __height / 2;
+    this.npc.points = [];
+    this.npc.movements = {
+      up: true,
+      down: true,
+      left: false,
+      right: false
+    };
   }
   glob.resetScenario = resetScenario;
 
