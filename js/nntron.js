@@ -9,6 +9,12 @@ var __width = 600,
       return can;
     })(document)
   },
+  DIRECTIONS = {
+    UP: 0,
+    DOWN: 1,
+    LEFT: 2,
+    RIGHT: 3
+  },
   w = window,
   requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
@@ -17,7 +23,35 @@ var __width = 600,
     bgImage = new Image(),
     playerImg = new Image(),
     npcImg = new Image(),
-    ctx = canvas.getContext("2d");
+    ctx = canvas.getContext("2d"),
+    player = {
+      speed: __speed,
+      movements: {
+        up: true,
+        down: true,
+        left: false,
+        right: false
+      },
+      direction: DIRECTIONS.RIGHT,
+      points: [],
+      x: 0,
+      y: 0
+    },
+    npc = {
+      speed: __speed,
+      movements: {
+        up: true,
+        down: true,
+        left: false,
+        right: false
+      },
+      points: [],
+      direction: DIRECTIONS.LEFT,
+      level: 0,
+      x: 0,
+      y: 0
+    },
+    score = [0, 0]; //Score in the form: player, npc
 
   bgImage.onload = function() {
     bgReady = true;
@@ -35,7 +69,35 @@ var __width = 600,
   npcImg.src = "img/npc.png";
 
   function render() {
-    var ctx = ctx || glob.ctx;
+    var ctx = ctx || glob.ctx,
+      player = glob.player,
+      npc = glob.npc;
+
+    player.points.push({
+      x: player.x,
+      y: player.y
+    });
+
+    if (player.direction === DIRECTIONS.RIGHT) {
+      player.x += 1;
+    } else if (player.direction === DIRECTIONS.LEFT) {
+      player.x -= 1;
+    } else if (player.direction === DIRECTIONS.UP) {
+      player.y -= 1;
+    } else if (player.direction === DIRECTIONS.DOWN) {
+      player.y += 1;
+    }
+
+    if (npc.direction === DIRECTIONS.LEFT) {
+      npc.x -= 1;
+    } else if (npc.direction === DIRECTIONS.LEFT) {
+      npc.x -= 1;
+    } else if (npc.direction === DIRECTIONS.UP) {
+      npc.y -= 1;
+    } else if (npc.direction === DIRECTIONS.DOWN) {
+      npc.y += 1;
+    }
+
 
     if (bgReady) {
       ctx.drawImage(bgImage, 0, 0);
@@ -48,31 +110,6 @@ var __width = 600,
     }
   }
   glob.render = render;
-
-  var player = {
-      speed: __speed,
-      movements: {
-        up: true,
-        down: true,
-        left: false,
-        right: false
-      },
-      x: 0,
-      y: 0
-    },
-    npc = {
-      speed: __speed,
-      movements: {
-        up: true,
-        down: true,
-        left: false,
-        right: false
-      },
-      level: 0,
-      x: 0,
-      y: 0
-    },
-    points = [0, 0]; //Points in the form: player, npc
 
   glob.keys = {};
 
@@ -87,42 +124,106 @@ var __width = 600,
   function resetScenario() {
     this.player.x = __width / 4;
     this.player.y = __height / 2;
+    this.player.movements = [];
+    this.player.direction = DIRECTIONS.RIGHT;
+    this.player.movements = {
+      up: true,
+      down: true,
+      left: false,
+      right: false
+    };
 
     this.npc.x = (__width / 4) * 3;
     this.npc.y = __height / 2;
+    this.npc.movements = [];
+    this.npc.direction = DIRECTIONS.LEFT;
+    this.npc.movements = {
+      up: true,
+      down: true,
+      left: false,
+      right: false
+    };
   }
   glob.resetScenario = resetScenario;
 
   function updateGame(modifier) {
     var player = glob.player,
-      npc = glob.npc, needReset = false;
+      npc = glob.npc,
+      needReset = false;
+    //key arrow left pressed
     if (37 in glob.keys) {
-      player.x -= player.speed * modifier;
+      if (player.movements.left) {
+        player.x -= player.speed * modifier;
+        player.direction = DIRECTIONS.LEFT;
+        player.movements = {
+          left: false,
+          right: false,
+          up: true,
+          down: true
+        }
+      }
     }
-
+    //key arrow up pressed
     if (38 in glob.keys) {
-      player.y -= player.speed * modifier;
+      if (player.movements.up) {
+        player.y -= player.speed * modifier;
+        player.direction = DIRECTIONS.UP;
+        player.movements = {
+          left: true,
+          right: true,
+          up: false,
+          down: false
+        }
+      }
     }
-
+    //key arrow right pressed
     if (39 in glob.keys) {
-      player.x += player.speed * modifier;
+      if (player.movements.right) {
+        player.x += player.speed * modifier;
+        player.direction = DIRECTIONS.RIGHT;
+        player.movements = {
+          left: false,
+          right: false,
+          up: true,
+          down: true
+        }
+      }
+    }
+    //key arrow down pressed
+    if (40 in glob.keys) {
+      if (player.movements.down) {
+        player.y += player.speed * modifier;
+        player.direction = DIRECTIONS.DOWN;
+        player.movements = {
+          left: true,
+          right: true,
+          up: false,
+          down: false
+        }
+      }
     }
 
-    if (40 in glob.keys) {
-      player.y += player.speed * modifier;
+    if ((player.movements.up && npc.movements.down) && (player.y - 5) >= npc.y && player.x == npc.x) {
+      needReset = true;
+    }
+    //FIXME: Patch fast
+    if ((player.movements.right && npc.movements.left) && (player.x + 5) >= npc.x && player.y == npc.y) {
+      needReset = true;
     }
 
     //You just touched the limits, you lose
-    if ((player.x + 5) >= __width || player.x <= 0 || player.y <= 0 || (player.y + 5) >= __height){
-      glob.points[1]++;
-      needReset = true;
-    }
-    if ((npc.x + 5) >= __width || npc.x <= 0 || npc.y <= 0 || (npc.y + 5) >= __height){
-      glob.points[0]++;
-      needReset = true;
+    if (!needReset) {
+      if ((player.x + 5) >= __width || player.x <= 0 || player.y <= 0 || (player.y + 5) >= __height) {
+        glob.score[1]++;
+        needReset = true;
+      }
+      if ((npc.x + 5) >= __width || npc.x <= 0 || npc.y <= 0 || (npc.y + 5) >= __height) {
+        glob.score[0]++;
+        needReset = true;
+      }
     }
 
-    if(needReset){
+    if (needReset) {
       glob.resetScenario();
     }
   }
@@ -130,7 +231,7 @@ var __width = 600,
 
   glob.player = player;
   glob.npc = npc;
-  glob.points = points;
+  glob.score = score;
 
   function mainLoop() {
     var now = Date.now(),
