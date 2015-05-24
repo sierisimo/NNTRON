@@ -152,7 +152,6 @@ var __width = 600,
         needReset = false;
       if (!!glob.key) {
         //key arrow left pressed
-        // if (37 in glob.keys) {
         if (37 === glob.key){
           if (player.movements.left) {
             player.x -= player.speed * modifier;
@@ -166,7 +165,6 @@ var __width = 600,
           }
       }
       //key arrow up pressed
-      // if (38 in glob.keys) {
       if (38 === glob.key) {
         if (player.movements.up) {
           player.y -= player.speed * modifier;
@@ -180,7 +178,6 @@ var __width = 600,
         }
       }
       //key arrow right pressed
-      // if (39 in glob.keys) {
       if (39 === glob.key) {
         if (player.movements.right) {
           player.x += player.speed * modifier;
@@ -194,7 +191,6 @@ var __width = 600,
         }
       }
       //key arrow down pressed
-      // if (40 in glob.keys) {
       if (40 === glob.key) {
         if (player.movements.down) {
           player.y += player.speed * modifier;
