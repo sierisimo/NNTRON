@@ -14,7 +14,7 @@ var __width = 600,
     NPC: 1,
     TIE: 2
   }
-  DIRECTIONS = {
+DIRECTIONS = {
     UP: 0,
     DOWN: 1,
     LEFT: 2,
@@ -152,20 +152,50 @@ var __width = 600,
 
   function updateGame(modifier) {
     var player = glob.player,
-      npc = glob.npc, crasher,
+      npc = glob.npc,
+      crasher,
       needReset = false;
 
-    player.points.push({
-      x: player.x,
-      y: player.y
-    });
+    //this, checks if the player hit itself
+    if (!needReset) {
+      needReset = player.points.some(function(point, index, arr) {
+        return _.isEqual(point, {
+          x: player.x,
+          y: player.y
+        });
+      });
+      if (needReset) {
+        crasher = CRASHER.PLAYER;
+        glob.score[1]++;
+      }
+    }
 
-    npc.points.push({
-      x: npc.x,
-      y: npc.y
-    });
+    if (!needReset) {
+      needReset = npc.points.some(function(point, index, arr) {
+        return _.isEqual(point, {
+          x: npc.x,
+          y: npc.y
+        });
+      });
+      if (needReset) {
+        crasher = CRASHER.NPC;
+        glob.score[0]++;
+      }
+    }
 
-    if (!!glob.key) {
+    if (!needReset) {
+      player.points.push({
+        x: player.x,
+        y: player.y
+      });
+
+      npc.points.push({
+        x: npc.x,
+        y: npc.y
+      });
+    }
+
+    if (!!glob.key && !needReset) {
       //key arrow left pressed
       if (37 === glob.key) {
         if (player.movements.left) {
@@ -221,7 +251,7 @@ var __width = 600,
     }
 
     //Ties in horizontal lines
-    if (player.y === npc.y) {
+    if (player.y === npc.y && !needReset) {
       if (player.direction === DIRECTIONS.RIGHT && npc.direction === DIRECTIONS.LEFT && (player.x + 1) >= (npc.x - 1)) {
         needReset = true;
         crasher = CRASHER.TIE;
@@ -229,7 +259,7 @@ var __width = 600,
         needReset = true;
         crasher = CRASHER.TIE;
       }
-    } else if (player.x === npc.x) {
+    } else if (player.x === npc.x && !needReset) {
       if (player.direction === DIRECTIONS.DOWN && npc.direction === DIRECTIONS.UP && (player.y + 1) >= (npc.y - 1)) {
         needReset = true;
         crasher = CRASHER.TIE;
