@@ -9,6 +9,11 @@ var __width = 600,
       return can;
     })(document)
   },
+  CRASHER = {
+    PLAYER: 0,
+    NPC: 1,
+    TIE: 2
+  }
   DIRECTIONS = {
     UP: 0,
     DOWN: 1,
@@ -19,8 +24,8 @@ var __width = 600,
   requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
 (function(canvas) {
-  var bgReady = playerImgReady = npcImgReady = false,
-    bgImage = new Image(),
+  var playerImgReady = npcImgReady = false,
+    //bgImage = new Image(),
     playerImg = new Image(),
     npcImg = new Image(),
     ctx = canvas.getContext("2d"),
@@ -53,10 +58,10 @@ var __width = 600,
     },
     score = [0, 0]; //Score in the form: player, npc
 
-  bgImage.onload = function() {
-    bgReady = true;
-  };
-  bgImage.src = "img/cyber.jpg";
+  //bgImage.onload = function() {
+  //  bgReady = true;
+  //};
+  //bgImage.src = "img/cyber.jpg";
 
   playerImg.onload = function() {
     playerImgReady = true;
@@ -72,11 +77,6 @@ var __width = 600,
     var ctx = ctx || glob.ctx,
       player = glob.player,
       npc = glob.npc;
-
-    player.points.push({
-      x: player.x,
-      y: player.y
-    });
 
     if (player.direction === DIRECTIONS.RIGHT) {
       player.x += 1;
@@ -98,9 +98,9 @@ var __width = 600,
       npc.y += 1;
     }
 
-    if (bgReady) {
-      ctx.drawImage(bgImage, 0, 0);
-    }
+    //if (bgReady) {
+    //  ctx.drawImage(bgImage, 0, 0);
+    //}
     if (playerImgReady) {
       ctx.drawImage(playerImg, glob.player.x, glob.player.y);
     }
@@ -122,8 +122,9 @@ var __width = 600,
   }, false);
 
   function resetScenario() {
-    this.player.x = __width / 4;
-    this.player.y = __height / 2;
+    this.player.points = [];
+    this.player.x = Math.round(__width / 4);
+    this.player.y = Math.round(__height / 2);
     this.player.movements = [];
     this.player.direction = DIRECTIONS.RIGHT;
     this.player.movements = {
@@ -133,8 +134,9 @@ var __width = 600,
       right: false
     };
 
-    this.npc.x = (__width / 4) * 3;
-    this.npc.y = __height / 2;
+    this.npc.points = [];
+    this.npc.x = Math.round((__width / 4) * 3);
+    this.npc.y = Math.round(__height / 2);
     this.npc.movements = [];
     this.npc.direction = DIRECTIONS.LEFT;
     this.npc.movements = {
@@ -143,13 +145,26 @@ var __width = 600,
       left: false,
       right: false
     };
+
+    ctx.clearRect(0, 0, glob.canvas.width, glob.canvas.height);
   }
   glob.resetScenario = resetScenario;
 
   function updateGame(modifier) {
     var player = glob.player,
-      npc = glob.npc,
+      npc = glob.npc, crasher,
       needReset = false;
+
+    player.points.push({
+      x: player.x,
+      y: player.y
+    });
+
+    npc.points.push({
+      x: npc.x,
+      y: npc.y
+    });
+
     if (!!glob.key) {
       //key arrow left pressed
       if (37 === glob.key) {
@@ -209,15 +224,30 @@ var __width = 600,
     if (player.y === npc.y) {
       if (player.direction === DIRECTIONS.RIGHT && npc.direction === DIRECTIONS.LEFT && (player.x + 1) >= (npc.x - 1)) {
         needReset = true;
+        crasher = CRASHER.TIE;
       } else if (player.direction === DIRECTIONS.LEFT && npc.direction === DIRECTIONS.RIGHT && (player.x - 1) >= (npc.x + 1)) {
         needReset = true;
+        crasher = CRASHER.TIE;
       }
     } else if (player.x === npc.x) {
       if (player.direction === DIRECTIONS.DOWN && npc.direction === DIRECTIONS.UP && (player.y + 1) >= (npc.y - 1)) {
         needReset = true;
+        crasher = CRASHER.TIE;
       } else if (player.direction === DIRECTIONS.UP && npc.direction === DIRECTIONS.DOWN && (player.y - 1) >= (npc.y + 1)) {
         needReset = true;
+        crasher = CRASHER.TIE;
       }
+    }
+
+    //This if, causes the crashes, but not determines who crashed, this need improvement
+    //FIXME: Improve this to now who crash
+    if (!needReset) {
+      needReset = player.points.some(function(point, index, arr) {
+        if (_.findIndex(npc.points, point) == -1) {
+          return false;
+        }
+        return true;
+      });
     }
 
     //You just touched the limits, you lose
@@ -249,7 +279,7 @@ var __width = 600,
 
     glob.then = now;
 
-    glob.updateGame(delta / 1000);
+    glob.updateGame(Math.round(delta / 1000));
     glob.render();
 
     //Request the update ASAP
