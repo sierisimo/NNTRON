@@ -88,8 +88,8 @@ DIRECTIONS = {
       player.y += 1;
     }
 
-    if (npc.direction === DIRECTIONS.LEFT) {
-      npc.x -= 1;
+    if (npc.direction === DIRECTIONS.RIGHT) {
+      npc.x += 1;
     } else if (npc.direction === DIRECTIONS.LEFT) {
       npc.x -= 1;
     } else if (npc.direction === DIRECTIONS.UP) {
@@ -121,7 +121,8 @@ DIRECTIONS = {
     delete glob.key;
   }, false);
 
-  function resetScenario() {
+  function resetScenario(crasher, resetCaller) {
+    console.log(crasher, resetCaller);
     this.player.points = [];
     this.player.x = Math.round(__width / 4);
     this.player.y = Math.round(__height / 2);
@@ -150,10 +151,12 @@ DIRECTIONS = {
   }
   glob.resetScenario = resetScenario;
 
+  var flag = false;
+
   function updateGame(modifier) {
     var player = glob.player,
       npc = glob.npc,
-      crasher,
+      crasher, resetCaller,
       needReset = false;
 
     //this, checks if the player hit itself
@@ -165,10 +168,13 @@ DIRECTIONS = {
         });
       });
       if (needReset) {
+        resetCaller = "Player crashes";
         crasher = CRASHER.PLAYER;
         glob.score[1]++;
       }
     }
+
+    var coordinatesCrash, crashPoint, previousPoints;
 
     if (!needReset) {
       needReset = npc.points.some(function(point, index, arr) {
@@ -177,7 +183,9 @@ DIRECTIONS = {
           y: npc.y
         });
       });
+
       if (needReset) {
+        resetCaller = "NPC Crashes";
         crasher = CRASHER.NPC;
         glob.score[0]++;
       }
@@ -207,6 +215,9 @@ DIRECTIONS = {
             up: true,
             down: true
           }
+
+          npc.x -= npc.speed * modifier;
+          npc.direction = DIRECTIONS.LEFT;
         }
       }
       //key arrow up pressed
@@ -220,6 +231,9 @@ DIRECTIONS = {
             up: false,
             down: false
           }
+
+          npc.y -= npc.speed * modifier;
+          npc.direction = DIRECTIONS.UP;
         }
       }
       //key arrow right pressed
@@ -233,6 +247,9 @@ DIRECTIONS = {
             up: true,
             down: true
           }
+
+          npc.x += npc.speed * modifier;
+          npc.direction = DIRECTIONS.RIGHT;
         }
       }
       //key arrow down pressed
@@ -246,6 +263,9 @@ DIRECTIONS = {
             up: false,
             down: false
           }
+
+          npc.y += npc.speed * modifier;
+          npc.direction = DIRECTIONS.DOWN;
         }
       }
     }
@@ -255,22 +275,27 @@ DIRECTIONS = {
       if (player.direction === DIRECTIONS.RIGHT && npc.direction === DIRECTIONS.LEFT && (player.x + 1) >= (npc.x - 1)) {
         needReset = true;
         crasher = CRASHER.TIE;
+        resetCaller = "Player y and npc y are equal, directions where RIGHT and LEFT respectivly";
       } else if (player.direction === DIRECTIONS.LEFT && npc.direction === DIRECTIONS.RIGHT && (player.x - 1) >= (npc.x + 1)) {
         needReset = true;
         crasher = CRASHER.TIE;
+        resetCaller = "Player y and npc are equal, player LEFT and npc RIGHT";
       }
     } else if (player.x === npc.x && !needReset) {
       if (player.direction === DIRECTIONS.DOWN && npc.direction === DIRECTIONS.UP && (player.y + 1) >= (npc.y - 1)) {
         needReset = true;
         crasher = CRASHER.TIE;
+        resetCaller = "Player x and npc are equal, player going down and npc going up";
       } else if (player.direction === DIRECTIONS.UP && npc.direction === DIRECTIONS.DOWN && (player.y - 1) >= (npc.y + 1)) {
         needReset = true;
         crasher = CRASHER.TIE;
+        resetCaller = "Player x and npc are equal, player going up and npc going down";
       }
     }
 
     //This if, causes the crashes, but not determines who crashed, this need improvement
     //FIXME: Improve this to now who crash
+    /*
     if (!needReset) {
       needReset = player.points.some(function(point, index, arr) {
         if (_.findIndex(npc.points, point) == -1) {
@@ -279,6 +304,7 @@ DIRECTIONS = {
         return true;
       });
     }
+    */
 
     //You just touched the limits, you lose
     if (!needReset) {
@@ -286,15 +312,17 @@ DIRECTIONS = {
       if ((player.x + 5) >= __width || player.x <= 0 || player.y <= 0 || (player.y + 5) >= __height) {
         glob.score[1]++;
         needReset = true;
+        resetCaller = "Player touched the edge";
       }
       if ((npc.x + 5) >= __width || npc.x <= 0 || npc.y <= 0 || (npc.y + 5) >= __height) {
         glob.score[0]++;
         needReset = true;
+        resetCaller = "NPC touched the edge";
       }
     }
 
     if (needReset) {
-      glob.resetScenario();
+      glob.resetScenario(crasher, resetCaller);
     }
   }
   glob.updateGame = updateGame;
