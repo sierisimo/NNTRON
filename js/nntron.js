@@ -174,8 +174,6 @@ DIRECTIONS = {
       }
     }
 
-    var coordinatesCrash, crashPoint, previousPoints;
-
     if (!needReset) {
       needReset = npc.points.some(function(point, index, arr) {
         return _.isEqual(point, {
@@ -270,6 +268,19 @@ DIRECTIONS = {
       }
     }
 
+    if (!needReset) {
+      needReset = npc.points.some(function(point, index, arr) {
+        return _.isEqual(point, {
+          x: player.x,
+          y: player.y
+        });
+      });
+
+      if (needReset) {
+        crasher = CRASHER.PLAYER;
+        resetCaller = "Player crashed with light of npc";
+      }
+    }
     //Ties in horizontal lines
     if (player.y === npc.y && !needReset) {
       if (player.direction === DIRECTIONS.RIGHT && npc.direction === DIRECTIONS.LEFT && (player.x + 1) >= (npc.x - 1)) {
