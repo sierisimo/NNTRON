@@ -122,7 +122,15 @@ DIRECTIONS = {
   }, false);
 
   function resetScenario(crasher, resetCaller) {
-    console.log(crasher, resetCaller);
+    switch (crasher) {
+      case CRASHER.NPC:
+        glob.score[0]++;
+        break;
+      case CRASHER.PLAYER:
+        glob.score[1]++;
+        break;
+    }
+
     this.player.points = [];
     this.player.x = Math.round(__width / 4);
     this.player.y = Math.round(__height / 2);
@@ -170,10 +178,10 @@ DIRECTIONS = {
       if (needReset) {
         resetCaller = "Player crashes";
         crasher = CRASHER.PLAYER;
-        glob.score[1]++;
       }
     }
 
+    //Check if npc crashed himself
     if (!needReset) {
       needReset = npc.points.some(function(point, index, arr) {
         return _.isEqual(point, {
@@ -185,7 +193,6 @@ DIRECTIONS = {
       if (needReset) {
         resetCaller = "NPC Crashes";
         crasher = CRASHER.NPC;
-        glob.score[0]++;
       }
     }
 
@@ -213,9 +220,6 @@ DIRECTIONS = {
             up: true,
             down: true
           }
-
-          npc.x -= npc.speed * modifier;
-          npc.direction = DIRECTIONS.LEFT;
         }
       }
       //key arrow up pressed
@@ -229,9 +233,6 @@ DIRECTIONS = {
             up: false,
             down: false
           }
-
-          npc.y -= npc.speed * modifier;
-          npc.direction = DIRECTIONS.UP;
         }
       }
       //key arrow right pressed
@@ -245,9 +246,6 @@ DIRECTIONS = {
             up: true,
             down: true
           }
-
-          npc.x += npc.speed * modifier;
-          npc.direction = DIRECTIONS.RIGHT;
         }
       }
       //key arrow down pressed
@@ -261,13 +259,11 @@ DIRECTIONS = {
             up: false,
             down: false
           }
-
-          npc.y += npc.speed * modifier;
-          npc.direction = DIRECTIONS.DOWN;
         }
       }
     }
 
+    //Check if player passed for a point where the npc previously passed
     if (!needReset) {
       needReset = npc.points.some(function(point, index, arr) {
         return _.isEqual(point, {
@@ -279,6 +275,21 @@ DIRECTIONS = {
       if (needReset) {
         crasher = CRASHER.PLAYER;
         resetCaller = "Player crashed with light of npc";
+      }
+    }
+
+    //Check if npc passed for a point where the npc previously passed
+    if (!needReset) {
+      needReset = player.points.some(function(point, index, arr) {
+        return _.isEqual(point, {
+          x: npc.x,
+          y: npc.y
+        });
+      });
+
+      if (needReset) {
+        crasher = CRASHER.NPC;
+        resetCaller = "NPC crashed with light of npc";
       }
     }
     //Ties in horizontal lines
@@ -304,29 +315,16 @@ DIRECTIONS = {
       }
     }
 
-    //This if, causes the crashes, but not determines who crashed, this need improvement
-    //FIXME: Improve this to now who crash
-    /*
-    if (!needReset) {
-      needReset = player.points.some(function(point, index, arr) {
-        if (_.findIndex(npc.points, point) == -1) {
-          return false;
-        }
-        return true;
-      });
-    }
-    */
-
     //You just touched the limits, you lose
     if (!needReset) {
       //This make the scenario reset if someone touch the edges
       if ((player.x + 5) >= __width || player.x <= 0 || player.y <= 0 || (player.y + 5) >= __height) {
-        glob.score[1]++;
         needReset = true;
+        crasher = CRASHER.PLAYER;
         resetCaller = "Player touched the edge";
       }
       if ((npc.x + 5) >= __width || npc.x <= 0 || npc.y <= 0 || (npc.y + 5) >= __height) {
-        glob.score[0]++;
+        crasher = CRASHER.NPC;
         needReset = true;
         resetCaller = "NPC touched the edge";
       }
