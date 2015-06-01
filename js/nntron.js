@@ -20,7 +20,7 @@ var __width = 600,
     LEFT: 2,
     RIGHT: 3
   },
-  spaceCrash = 8,
+  spaceCrash = 20,
   w = window,
   requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
@@ -73,6 +73,7 @@ var __width = 600,
       player = glob.player,
       npc = glob.npc;
 
+    //FIXME: this and the npc part determine the speed, delete it
     if (player.direction === DIRECTIONS.RIGHT) {
       player.x += 1;
     } else if (player.direction === DIRECTIONS.LEFT) {
@@ -148,8 +149,6 @@ var __width = 600,
     ctx.clearRect(0, 0, glob.canvas.width, glob.canvas.height);
   }
   glob.resetScenario = resetScenario;
-
-  var flag = false;
 
   function updateGame(modifier) {
     var player = glob.player,
