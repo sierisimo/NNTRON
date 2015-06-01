@@ -13,19 +13,19 @@ var __width = 600,
     PLAYER: 0,
     NPC: 1,
     TIE: 2
-  }
-DIRECTIONS = {
+  },
+  DIRECTIONS = {
     UP: 0,
     DOWN: 1,
     LEFT: 2,
     RIGHT: 3
   },
+  spaceCrash = 8,
   w = window,
   requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
 
 (function(canvas) {
   var playerImgReady = npcImgReady = false,
-    //bgImage = new Image(),
     playerImg = new Image(),
     npcImg = new Image(),
     ctx = canvas.getContext("2d"),
@@ -57,11 +57,6 @@ DIRECTIONS = {
       y: 0
     },
     score = [0, 0]; //Score in the form: player, npc
-
-  //bgImage.onload = function() {
-  //  bgReady = true;
-  //};
-  //bgImage.src = "img/cyber.jpg";
 
   playerImg.onload = function() {
     playerImgReady = true;
@@ -98,9 +93,6 @@ DIRECTIONS = {
       npc.y += 1;
     }
 
-    //if (bgReady) {
-    //  ctx.drawImage(bgImage, 0, 0);
-    //}
     if (playerImgReady) {
       ctx.drawImage(playerImg, glob.player.x, glob.player.y);
     }
@@ -112,12 +104,10 @@ DIRECTIONS = {
 
   glob.keys = {};
   addEventListener('keydown', function(e) {
-    // glob.keys[e.keyCode] = true;
     glob.key = e.keyCode;
   }, false);
 
   addEventListener('keyup', function(e) {
-    // delete glob.keys[e.keyCode];
     delete glob.key;
   }, false);
 
@@ -189,7 +179,6 @@ DIRECTIONS = {
           y: npc.y
         });
       });
-
       if (needReset) {
         resetCaller = "NPC Crashes";
         crasher = CRASHER.NPC;
@@ -290,6 +279,10 @@ DIRECTIONS = {
       if (needReset) {
         crasher = CRASHER.NPC;
         resetCaller = "NPC crashed with light of npc";
+      } else {
+        if (!needReset && !!npc.chooseMove) {
+          npc.chooseMove(false);
+        }
       }
     }
     //Ties in horizontal lines
