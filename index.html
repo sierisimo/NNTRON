@@ -4,8 +4,7 @@
 <head>
   <meta charset="utf-8" />
 
-  <link rel="stylesheet" href="/css/pure/base-min.css" media="screen" charset="utf-8">
-  <link rel="stylesheet" href="/css/pure/grids-min.css" media="screen" charset="utf-8">
+  <link rel="stylesheet" href="/css/pure/pure-min.css" media="screen" charset="utf-8">
   <link rel="stylesheet" href="/css/nntron.css" media="screen" charset="utf-8">
   <script src="/js/lib/underscore-1.8.3.js"></script>
 </head>
@@ -20,13 +19,22 @@
     <div class="pure-g game" id="game">
       <div class="pure-u-1-3 settings">
         <div class="pure-g">
-          <div class="pure-g-1-3">
-            <h1 class="pure-u-1-1">Hello</h1>
-          </div>
-          <div class="pure-g-1-3">
-            <h2 class="pure-u-1-2">Player of</h2>
-            <h2 class="pure-u-1-2">NNTRON</h2>
-          </div>
+          <h1 class="pure-u-1-1">Hello Player of NNTRON</h1>
+          <h1 class="pure-u-1-1">Settings</h1>
+          <br>
+          <br>
+          <h1 class="pure-u-1-4">Score:</h1>
+          <h1 class="pure-u-1-4" id="score-player"></h1>
+          <h1 class="pure-u-1-4">-</h1>
+          <h1 class="pure-u-1-4" id="score-npc"></h1>
+        </div>
+
+        <br>
+        <br>
+        <br>
+        <div class="pure-g">
+          <button class="pure-u-1-2 button-error pure-button pure-button-primary" id="play">Empezar</button>
+          <button class="pure-u-1-2 pure-button" id="reset">Reset</button>
         </div>
       </div>
       <div class="pure-u-2-3">
@@ -37,6 +45,7 @@
   </div>
   <script type="text/javascript" src="/js/nntron.js"></script>
   <script type="text/javascript" src="/js/npc.js"></script>
+  <script type="text/javascript" src="/js/nntronDOM.js"></script>
 </body>
 
 </html>

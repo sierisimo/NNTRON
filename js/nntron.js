@@ -122,6 +122,10 @@ var __width = 600,
         break;
     }
 
+    if (!!glob.scoreEvent) {
+      dispatchEvent(glob.scoreEvent);
+    }
+
     this.player.points = [];
     this.player.x = Math.round(__width / 4);
     this.player.y = Math.round(__height / 2);
@@ -350,5 +354,5 @@ var __width = 600,
 
   //FIXME: Change this for a button call or something
   glob.resetScenario();
-  glob.mainLoop();
+  //glob.mainLoop();
 })(glob.canvas);
