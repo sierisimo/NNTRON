@@ -1,4 +1,4 @@
 .sass-cache
 
 #Just ignoring for developing status, production doesn't need the sass files
-css/*.css
+#css/*.css
